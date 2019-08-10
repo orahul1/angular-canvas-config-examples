@@ -1,3 +1,4 @@
+import { Circle } from './../drawCircle';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 
 @Component({
@@ -8,7 +9,7 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 export class HomeComponent implements OnInit {
   @ViewChild('canvas', { static: true }) canvas: ElementRef<HTMLCanvasElement>;  /* canvas element ref */
   private c: CanvasRenderingContext2D;
-
+  circleArray = [];
 
 
   constructor(private el: ElementRef) { }
@@ -22,6 +23,15 @@ export class HomeComponent implements OnInit {
 
     /* returning a drawing context => returning  functions and properties to c(context) */
     this.c = this.canvas.nativeElement.getContext("2d");
+    /* random circle */
+    for (let index = 0; index < 200; index++) {
+      let radius = 10;
+      let x = Math.random() * (innerWidth - radius * 2) + radius; // initial position of x [avoid new spawn circle hitting side of the screen]
+      let y = Math.random() * (innerHeight - radius *2) + radius; // initial postion of y
+      let dx = (Math.random() - 0.5 + 2) * 2; // velocity of x (dx can be -ve or +ve => Math.random gives 1-0.5 so subtracting 0.5 will give random -ve or +ve)
+      let dy = (Math.random() - 0.5 + 2) * 2; // velocity of y [multi 3 because its fucking slow]
+      this.circleArray.push(new Circle(this.c,x,y,radius,dx,dy));
+    }
     this.animate();
     // this.drawSquare();
   }
@@ -78,35 +88,28 @@ export class HomeComponent implements OnInit {
   //     this.animate();
   //   }
   // }
-  x = Math.random() * innerWidth; // initial position of x
-  y = Math.random() * innerHeight; // initial postion of y
-  dx = (Math.random() - 0.5) * 18; // velocity of x (dx can be -ve or +ve => Math.random gives 1-0.5 so subtracting 0.5 will give random -ve or +ve)
-  dy = (Math.random() - 0.5) * 18; // velocity of y [multi 3 because its fucking slow]
-  radius = 50;
-  /* animation */
+
+
+ /* single Circle animation */
+
+  // this.c.beginPath();
+  // this.c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+  // this.c.strokeStyle = 'blue';
+  // this.c.fillStyle = 'blue';
+  // this.c.fill();
+  // this.c.stroke();
+
+    /* animation */
   animate() {
     /* create loop */
-    requestAnimationFrame(() => this.animate());
-    this.c.clearRect(0, 0, innerWidth, innerHeight);
-    this.c.beginPath();
-    this.c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    this.c.strokeStyle = 'blue';
-    this.c.fillStyle = 'blue';
-    this.c.fill();
-    this.c.stroke();
-    //to hit the right edge of the circle we need to add radius to the x
-    if (this.x + this.radius > innerWidth || this.x - this.radius < 0) {
-      this.dx = - this.dx;
-      console.log(this.x, this.dx)
+  requestAnimationFrame(() => this.animate());
+  this.c.clearRect(0, 0, innerWidth, innerHeight);
+  for (let index = 0; index < this.circleArray.length; index++) {
+       this.circleArray[index].update(index);
     }
-
-    //to hit the bottom edge of the circle we need to add radius to the y
-    if (this.y + this.radius > innerHeight || this.y - this.radius < 0) {
-      this.dy = - this.dy;
-      console.log(this.x, this.dx)
-    }
-    this.x += this.dx;
-    this.y += this.dy;
   }
-
 }
+
+
+
+
